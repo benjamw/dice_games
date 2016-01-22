@@ -1496,6 +1496,8 @@ display: none;
           }
 
           updateLocked( );
+          updateMarks( );
+          updateScores( );
         })
         .on('click', '.die', function (evt) {
           if (Qwixx.strictRolls) {
@@ -1517,7 +1519,9 @@ display: none;
             Qwixx.unblock(row);
           }
 
-          updateBlocked( );
+          updateLocked( );
+          updateMarks( );
+          updateScores( );
         });
 
       $('#passes')
