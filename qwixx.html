@@ -1461,33 +1461,39 @@ display: none;
         $tot.find('.grand').text(score.total);
       }
 
+      function updateDice( ) {
+        var color,
+          html = '',
+          rolls = Qwixx.roll,
+          colors = {
+            'w1': 'white',
+            'w2': 'white',
+            'r': 'red',
+            'y': 'yellow',
+            'g': 'green',
+            'b': 'blue'
+          };
+
+        for (color in colors) {
+          if (colors.hasOwnProperty(color)) {
+            if ('undefined' !== typeof rolls[color]) {
+              html += '<li class="' + colors[color] + '">' + rolls[color] + '</li>';
+            }
+          }
+        }
+
+        $('#dice').empty( ).append(html);
+      }
+
       $('#roll')
         .on('click', function (evt) {
-          var color,
-            html = '',
-            rolls = Qwixx.rollDice( ),
-            colors = {
-              'w1': 'white',
-              'w2': 'white',
-              'r': 'red',
-              'y': 'yellow',
-              'g': 'green',
-              'b': 'blue'
-            };
+          var rolls = Qwixx.rollDice( );
 
           if ( ! rolls) {
             alert('You must make a mark before you can roll again');
           }
 
-          for (color in colors) {
-            if (colors.hasOwnProperty(color)) {
-              if ('undefined' !== typeof rolls[color]) {
-                html += '<li class="' + colors[color] + '">' + rolls[color] + '</li>';
-              }
-            }
-          }
-
-          $('#dice').empty( ).append(html);
+          updateDice( );
         });
 
       $('.row')
@@ -1603,6 +1609,7 @@ display: none;
           updateMarks( );
           updatePasses( );
           updateScores( );
+          updateDice( );
         });
     </script>
   </body>
