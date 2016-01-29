@@ -1331,7 +1331,7 @@ display: none;
     <script type="text/javascript">
       Qwixx = new Qwixx( );
 
-      function updateStrict(both) {
+      function updateSettings(both) {
         if ('undefined' === typeof both) {
           both = false;
         }
@@ -1371,6 +1371,8 @@ display: none;
         else {
           $('.die').css('cursor', 'pointer');
         }
+
+        Qwixx.version = $('#variant').val( );
       }
 
       function updateBlocked( ) {
@@ -1588,10 +1590,10 @@ display: none;
           var $tgt = $(evt.currentTarget);
 
           if ($tgt.is('#strictrolls') && $tgt.prop('checked')) {
-            updateStrict(true);
+            updateSettings(true);
           }
           else {
-            updateStrict( );
+            updateSettings( );
           }
         });
 
@@ -1604,7 +1606,7 @@ display: none;
           Qwixx.setRows( );
 
           // update everything
-          updateStrict( );
+          updateSettings( );
           updateRows( );
           updateLocked( );
           updateMarks( );
