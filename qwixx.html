@@ -39,6 +39,8 @@ if strictrolls is toggled during a game where one dice is already blocked, adjus
 
       html, body {
         overflow: auto;
+        width: 41.9rem;
+        margin: 0 auto;
       }
 
       .cl:after {
@@ -89,6 +91,7 @@ if strictrolls is toggled during a game where one dice is already blocked, adjus
       #rows {
         padding: 0.5rem;
         display: inline-block;
+        position: relative;
       }
 
       #rows .row {
@@ -256,8 +259,9 @@ if strictrolls is toggled during a game where one dice is already blocked, adjus
         left: 0;
         width: 100%;
         height: 0;
-        margin-top: -1px;
-        border-top: 2px solid rgba(0, 0, 0, 0.8);
+        margin-top: -5px;
+        border-top: 10px solid rgba(0, 0, 0, 0.7);
+        z-index: 20;
       }
 
       #rows .row.blocked ul li,
@@ -434,7 +438,7 @@ if strictrolls is toggled during a game where one dice is already blocked, adjus
       #passes li.last {
         background-color: #eee;
         background-image: linear-gradient(45deg, #999 25%, transparent 25%, transparent 75%, #999 75%, #999),
-        linear-gradient(45deg, #999 25%, transparent 25%, transparent 75%, #999 75%, #999);
+          linear-gradient(45deg, #999 25%, transparent 25%, transparent 75%, #999 75%, #999);
         background-size: 10px 10px;
         background-position: 0 0, 5px 5px;
       }
@@ -504,6 +508,10 @@ if strictrolls is toggled during a game where one dice is already blocked, adjus
       #totals .boxes .pass.total { border-color: #666; }
       #totals .boxes .grand.total { border-color: #000; width: 4rem; font-weight: bold; }
 
+      #totals .note {
+display: none;
+      }
+
       body {
         padding-bottom: 3rem;
       }
@@ -514,96 +522,112 @@ if strictrolls is toggled during a game where one dice is already blocked, adjus
 
       #settings {
         background: #CCC;
-        padding: 1rem;
-        width: 41.9rem;
+        padding: 0.5rem;
+        font-size: 0; /* inline-block space killer */
+      }
+
+      #settings > * {
+        font-size: 1rem;
       }
 
       #settings > div {
         margin: 0.65rem;
         display: inline-block;
-      }
-
-      #settings input[type=checkbox] {
-        visibility: hidden;
+        font-size: 0.9rem;
+        text-align: center;
+        vertical-align: top;
       }
 
       #settings #variant_wrap > * {
-        display: inline;
+        display: block;
 display: none;
       }
 
-      /* SLIDER - [ http://cssdeck.com/labs/css-checkbox-styles ] */
-      .slide {
-        width: 80px;
-        height: 26px;
-        background: #333;
-        display: inline-block;
-        vertical-align: middle;
-
-        border-radius: 50px;
+      /* SLIDER - [ https://proto.io/freebies/onoff/ ] */
+      .onoffswitch {
         position: relative;
-
-        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
-        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
+        width: 80px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
 
-      .slide:after {
-        content: "OFF";
-        font: 12px/26px sans-serif;
-        color: #000;
-        position: absolute;
-        right: 10px;
-        z-index: 0;
-        font-weight: bold;
-        text-shadow: 1px 1px 0 rgba(255, 255, 255, .15);
+      .onoffswitch-checkbox {
+        display: none;
       }
 
-      .slide:before {
-        content: "ON";
-        font: 12px/26px sans-serif;
-        color: #00bf00;
-        position: absolute;
-        left: 10px;
-        z-index: 0;
-        font-weight: bold;
-      }
-
-      .slide input:after {
-        content: " ";
-        visibility: visible;
+      .onoffswitch-label {
         display: block;
-        width: 34px;
-        height: 20px;
-        border-radius: 50px;
-        -webkit-transition: all .3s ease;
-           -moz-transition: all .3s ease;
-            -ms-transition: all .3s ease;
-             -o-transition: all .3s ease;
-                transition: all .3s ease;
+        overflow: hidden;
         cursor: pointer;
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        z-index: 10;
-        -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-           -moz-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-                box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-        background: #fcfff4;
-        background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fcfff4', endColorstr='#b3bead', GradientType=0);
+        border: 2px solid #FFFFFF;
+        border-radius: 50px;
+        background-color: #FFFFFF;
       }
 
-      .slide input[type=checkbox]:checked:after {
-        left: 43px;
+      .onoffswitch-inner {
+        display: block;
+        width: 200%;
+        margin-left: -100%;
+        transition: margin 0.3s cubic-bezier(.65, .05, .36, 1) 0s;
+      }
+
+      .onoffswitch-inner:before, .onoffswitch-inner:after {
+        box-sizing: border-box;
+        display: block;
+        float: left;
+        width: 50%;
+        height: 26px;
+        padding: 0;
+        line-height: 26px;
+        font-size: 17px;
+        font-family: Trebuchet, Arial, sans-serif;
+        color: #FFF;
+        font-weight: bold;
+      }
+
+      .onoffswitch-inner:before {
+        content: "ON";
+        padding-left: 9px;
+        background-color: #390;
+        color: #FFF;
+        text-align: left;
+      }
+
+      .onoffswitch-inner:after {
+        content: "OFF";
+        padding-right: 9px;
+        background-color: #EEE;
+        color: #999;
+        text-align: right;
+      }
+
+      .onoffswitch-switch {
+        display: block;
+        width: 22px;
+        height: 22px;
+        margin: 4px;
+        background: #FFF;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 50px;
+        border: 2px solid #FFFFFF;
+        border-radius: 50px;
+        transition: all 0.3s cubic-bezier(.65, .05, .36, 1) 0s;
+      }
+
+      .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+        margin-left: 0;
+      }
+
+      .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+        right: 0;
       }
       /* END SLIDER */
 
-      #roll {
+      .button {
         display: inline-block;
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -619,16 +643,16 @@ display: none;
         display: inline-block;
         padding: 0.88889rem 1.77778rem 0.94444rem 1.77778rem;
         font-size: 0.88889rem;
-        background-color: #008CBA;
-        border-color: #007095;
+        background-color: #369;
+        border-color: #26517D;
         color: #FFFFFF;
         transition: background-color 300ms ease-out;
-        border-radius: 3px;
+        border-radius: 0.5rem;
         float: left;
       }
 
-      #roll:hover {
-        background-color: #007095;
+      .button:hover {
+        background-color: #26517D;
       }
 
       #dice {
@@ -655,6 +679,10 @@ display: none;
       #dice li.yellow { background: #c90; }
       #dice li.green { background: #390; }
       #dice li.blue { background: #369; }
+
+      #rules {
+        padding: 0.5rem;
+      }
     </style>
   </head>
   <body>
@@ -775,7 +803,7 @@ display: none;
         <div class="note">if <span class="last"></span> or 2&times; <span class="die marked"></span></div>
       </div>
       <div id="play" class="cl">
-        <div id="roll">Roll</div>
+        <div id="roll" class="button">Roll</div>
         <ul id="dice" class="cl"></ul>
       </div>
       <div id="markers">
@@ -798,14 +826,22 @@ display: none;
     </section>
     <section id="settings">
       <div id="strict_wrap" title="Only allow legal actions">Strict Mode
-        <label class="slide">
-          <input type="checkbox" value="1" id="strict" name="strict"/>
-        </label>
+        <div class="onoffswitch">
+          <input type="checkbox" value="1" name="strict" class="onoffswitch-checkbox" id="strict">
+          <label class="onoffswitch-label" for="strict">
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+          </label>
+        </div>
       </div>
       <div id="strictrolls_wrap" title="Forces use of dice">Strict Rolls
-        <label class="slide">
-          <input type="checkbox" value="1" id="strictrolls" name="strictrolls"/>
-        </label>
+        <div class="onoffswitch">
+          <input type="checkbox" value="1" name="strictrolls" class="onoffswitch-checkbox" id="strictrolls">
+          <label class="onoffswitch-label" for="strictrolls">
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+          </label>
+        </div>
       </div>
       <div id="variant_wrap" title="Choose the game variant"><label for="variant">Game Type</label>
         <div class="select">
