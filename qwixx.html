@@ -825,6 +825,7 @@ display: none;
       </div>
     </section>
     <section id="settings">
+      <div id="reset" class="button">Reset</div>
       <div id="strict_wrap" title="Only allow legal actions">Strict Mode
         <div class="onoffswitch">
           <input type="checkbox" value="1" name="strict" class="onoffswitch-checkbox" id="strict">
@@ -1611,6 +1612,20 @@ display: none;
           updateScores( );
           updateDice( );
         });
+
+      $('#reset')
+        .on('click', function( ) {
+          // reset everything
+          updateSettings();
+          Qwixx.setRows( );
+          updateRows( );
+          updateLocked( );
+          updateMarks( );
+          updatePasses( );
+          updateScores( );
+          updateDice( );
+        })
+        .trigger('click');
     </script>
   </body>
 </html>
