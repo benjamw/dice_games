@@ -86,7 +86,7 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         display: block;
         position: absolute;
       }
-      
+
       .die.zero:after {
         display: none;
       }
@@ -127,45 +127,20 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         2.3em 2.3em 0 rgba(0, 0, 0, 0.75);
       }
       /* END Dice */
-      
+
       .die.held {
         background-color: #CCF;
         border-color: #00C;
       }
-      
+
       .die.err {
         background-color: #FCC;
         border-color: #C00;
       }
-      
+
       .die.lock {
         background-color: #DDD;
         border-color: #666;
-      }
-
-      .marked:before,
-      .skipped:before {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        z-index: 20;
-        width: 3rem;
-        height: 3rem;
-        font-size: 5rem;
-        margin-top: -1.5rem;
-        margin-left: -1.5rem;
-        font-weight: normal;
-        line-height: 3rem;
-      }
-
-      .marked:before {
-        content: "×";
-        color: rgba(0, 0, 0, 0.7);
-      }
-
-      .skipped:before {
-        content: "−";
-        color: rgba(0, 0, 0, 0.5);
       }
 
       #totals {
@@ -628,18 +603,158 @@ figure out best way to test for, and handle farkles, counting them for the tripl
       };
 
 
-      Farkle.prototype.setSettings = function (options) {
-// input settings from settings form and merge with this.opts
+      Farkle.prototype.setSettings = function(options) {
+// input settings from settings form and merge with this.opt
 
         return this.cleanOptions( );
       };
 
 
+      Farkle.prototype.countValues = function( ) {
+        var i, len,
+          heldOnly = !! arguments[0],
+          val_count = [0, 0, 0, 0, 0, 0, 0]; // 7 entries, 1-6 and zero
+
+        for (i = 0, len = this.dice.length; i < len; i += 1) {
+          if ( ! heldOnly || (heldOnly && this.dice[i].held && ! this.dice[i].lock)) {
+            val_count[this.dice[i].val] += 1;
+          }
+        }
+
+        return val_count;
+      };
+
+
       Farkle.prototype.calcScore = function( ) {
+        var i, j, len, triple,
+          val_count = this.countValues( ),
+          temp_score = 0,
+          temp_count = 0,
+          score = 0,
+          test_farkle = !! arguments[0];
+
+        if (test_farkle) {
+          for (i = 0, len = this.dice.length; i < len; i += 1) {
+            if ((1 === this.dice[i].val) || (5 === this.dice[i].val)) {
+              return false;
+            }
+
+            if ((-1 !== val_count.indexOf(3))
+              || (-1 !== val_count.indexOf(4))
+              || (-1 !== val_count.indexOf(5))
+              || (-1 !== val_count.indexOf(6))
+            ) {
+              return false;
+            }
+          }
+
+          this.score.farkle = true;
+
+          three_pair: {
+            if (this.opt.three_pair) {
+              for (i = 0, len = val_count.length; i < len; i += 1) {
+                if ((0 !== val_count[i]) && (2 !== val_count[i])) {
+                  // don't change farkle status
+                  break three_pair;
+                }
+              }
+
+              this.score.farkle = false;
+            }
+          }
+
+          straight: {
+            if (this.opt.straight) {
+              for (i = 1, len = val_count.length; i < len; i += 1) {
+                if (1 !== val_count[i]) {
+                  // don't change farkle status
+                  break straight;
+                }
+              }
+
+              this.score.farkle = false;
+            }
+          }
+
+          return this.score.farkle;
+        }
+        else {
+          triple = false;
+          val_count = this.countValues(true);
 // TODO: calculate the score for all held dice
 // if there are any held dice not part of a scoring group, set the err property on that die
 // possibly use this to test for farkle by only calculating score for unheld dice (use function argument as flag)
-        return 0;
+          // individual dice 1 & 5
+          if (val_count[1] < 3) {
+            score += this.opt.score['1'] * val_count[1];
+          }
+
+          if (val_count[5] < 3) {
+            score += this.opt.score['5'] * val_count[5];
+          }
+
+          // triples
+          for (i = 1, len = val_count.length; i < len; i += 1) {
+            if (3 === val_count[i]) {
+              score += this.opt.score[new Array(4).join('' + i)];
+              triple = true;
+            }
+          }
+
+          // multiples
+          if (this.opt.multiples) {
+            for (i = 1, len = val_count.length; i < len; i += 1) {
+              if (3 < val_count[i]) {
+                temp_score = this.opt.score[new Array(4).join('' + i)];
+                temp_count = val_count[i] - 3;
+              }
+            }
+
+            score += temp_score;
+
+            switch (this.opt.multiples) {
+              case 'adding' :
+                score += temp_score;
+
+                for (j = 0; j < temp_count; j += 1) {
+                  score += temp_score;
+                }
+
+                break;
+
+              case 'doubling' :
+                for (j = 0; j < temp_count; j += 1) {
+                  temp_score *= 2;
+                }
+
+                score += temp_score;
+
+                break;
+
+              default :
+                score += this.opt.multiples['' + (temp_count + 3)];
+
+                break;
+            }
+          }
+
+          // three pair
+          if (this.opt.three_pair) {
+
+          }
+
+          // straight
+          if (this.opt.straight) {
+
+          }
+
+          // full_house
+          if (this.opt.full_house && triple) {
+
+          }
+        }
+
+        return score;
       };
 
 
@@ -647,13 +762,13 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         idx = parseInt(idx, 10);
 
         this.msg = 'Something went wrong (Err: hold)';
-        
+
         this.dice[idx].held = true;
         this.held += 1;
 
         this.calcScore( );
         this.store( );
-        
+
         return true;
       };
 
@@ -664,39 +779,39 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         var i, len;
 
         this.msg = 'Something went wrong (Err: unhold)';
-        
+
         if (this.dice[idx].lock) {
           this.msg = 'You cannot unhold a locked die';
           return false;
         }
-        
+
         delete this.dice[idx].held;
         delete this.dice[idx].err;
         this.held -= 1;
-        
+
         if (this.held < 0) {
           this.held = 0;
         }
 
         this.calcScore( );
         this.store( );
-        
+
         return true;
       };
-      
-      
+
+
       Farkle.prototype.toggleHold = function(idx) {
         idx = parseInt(idx, 10);
-        
+
         this.msg = 'Something went wrong (Err:toggleHold)';
-        
+
         if (this.dice[idx].held) {
           return this.unhold(idx);
         }
         else {
           return this.hold(idx);
         }
-      }
+      };
 
 
       Farkle.prototype.bank = function( ) {
@@ -704,7 +819,7 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
         this.score.round += this.score.roll;
         this.msg = 'Something went wrong (Err: bank)';
-        
+
         if ( ! this.held) {
           this.msg = 'You must hold at least one die before banking points';
           return false;
@@ -746,7 +861,13 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
       Farkle.prototype.testFarkle = function( ) {
         // make sure at least one unheld die is a scoring die (or group)
-        return this.calcScore(false);
+        var farkle = this.calcScore(false);
+
+        if (farkle) {
+          this.msg = 'You have farkled =(';
+        }
+
+        return farkle;
       };
 
 
@@ -764,14 +885,14 @@ figure out best way to test for, and handle farkles, counting them for the tripl
           this.msg = 'You must hold at least one die before rolling again';
           return false;
         }
-        
+
         for (i = 0, len = this.dice.length; i < len; i += 1) {
           if (this.dice[i].err) {
             this.msg = 'You have held dice that are not part of a scoring group';
             return false;
           }
         }
-        
+
         for (i = 0, len = this.dice.length; i < len; i += 1) {
           if (this.dice[i].held && ! this.dice[i].err) {
             this.dice[i].lock = true;
@@ -812,7 +933,7 @@ figure out best way to test for, and handle farkles, counting them for the tripl
           if (dice.hasOwnProperty(die)) {
             html += '<li class="die ' + num[dice[die].val] + (dice[die].held ? ' held' : '') + (dice[die].lock ? ' lock' : '') + (dice[die].err ? ' err' : '') + '" title="' + dice[die].val + '" data-val="' + dice[die].val + '" data-idx="' + idx + '"></li>';
           }
-          
+
           idx += 1;
         }
 
@@ -843,15 +964,15 @@ figure out best way to test for, and handle farkles, counting them for the tripl
           updateDice( );
           updateScores( );
         });
-        
+
       $('#dice')
         .on('click', '.die', function (evt) {
           var $tgt = $(evt.currentTarget);
-          
+
           if (false === Farkle.toggleHold($tgt.data('idx'))) {
             alert(Farkle.msg);
           }
-          
+
           updateDice( );
           updateScores( );
         });
