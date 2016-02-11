@@ -12,7 +12,7 @@ create a number formatter function to format numbers in error messages and score
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width; initial-scale=0.5; minimum-scale=0.1; maximum-scale=10.0; user-scalable=1;"/>
+    <meta name="viewport" content="width=device-width, initial-scale=0.5, minimum-scale=0.1, maximum-scale=10.0, user-scalable=1"/>
 
     <title>Farkle</title>
 
@@ -188,6 +188,11 @@ create a number formatter function to format numbers in error messages and score
       #totals .boxes .roll.total { border-color: #390; }
       #totals .boxes .grand.total { border-color: #000; width: 7rem; font-weight: bold; }
 
+      #totals .farkle {
+        color: #C00;
+        text-decoration: line-through;
+      }
+
       footer {
         padding-bottom: 3rem;
       }
@@ -307,6 +312,13 @@ create a number formatter function to format numbers in error messages and score
       button:hover {
         background-color: #007095;
       }
+
+      button.disabled,
+      button.disabled:hover {
+        background-color: #666;
+        border-color: #666;
+        cursor: default;
+      }
     </style>
   </head>
   <body>
@@ -340,6 +352,7 @@ create a number formatter function to format numbers in error messages and score
         <li class="die zero"></li>
       </ul>
       <button id="bank">Bank</button>
+      <button id="reset">Reset</button>
     </section>
     <section id="totals" class="cl">
       <div class="head">Total</div>
@@ -525,22 +538,22 @@ create a number formatter function to format numbers in error messages and score
         this.opt.end_exact = (('true' === this.opt.end_exact) ? true : ( !! this.opt.end_exact));
 
         // integers
-        this.opt.start_score = parseInt(0 + this.opt.start_score, 10);
-        this.opt.bank_score = parseInt(0 + this.opt.bank_score, 10);
-        this.opt.score['1'] = parseInt(0 + this.opt.score['1'], 10);
-        this.opt.score['5'] = parseInt(0 + this.opt.score['5'], 10);
-        this.opt.score['111'] = parseInt(0 + this.opt.score['111'], 10);
-        this.opt.score['222'] = parseInt(0 + this.opt.score['222'], 10);
-        this.opt.score['333'] = parseInt(0 + this.opt.score['333'], 10);
-        this.opt.score['444'] = parseInt(0 + this.opt.score['444'], 10);
-        this.opt.score['555'] = parseInt(0 + this.opt.score['555'], 10);
-        this.opt.score['666'] = parseInt(0 + this.opt.score['666'], 10);
-        this.opt.three_pair = parseInt(0 + this.opt.three_pair, 10);
-        this.opt.straight = parseInt(0 + this.opt.straight, 10);
-        this.opt.full_house = parseInt(0 + this.opt.full_house, 10);
-        this.opt.full_farkle = parseInt(0 + this.opt.full_farkle, 10);
-        this.opt.triple_farkle = parseInt(0 + this.opt.triple_farkle, 10);
-        this.opt.goal_score = parseInt(0 + this.opt.goal_score, 10);
+        this.opt.start_score = parseInt(this.opt.start_score, 10);
+        this.opt.bank_score = parseInt(this.opt.bank_score, 10);
+        this.opt.score['1'] = parseInt(this.opt.score['1'], 10);
+        this.opt.score['5'] = parseInt(this.opt.score['5'], 10);
+        this.opt.score['111'] = parseInt(this.opt.score['111'], 10);
+        this.opt.score['222'] = parseInt(this.opt.score['222'], 10);
+        this.opt.score['333'] = parseInt(this.opt.score['333'], 10);
+        this.opt.score['444'] = parseInt(this.opt.score['444'], 10);
+        this.opt.score['555'] = parseInt(this.opt.score['555'], 10);
+        this.opt.score['666'] = parseInt(this.opt.score['666'], 10);
+        this.opt.three_pair = parseInt(this.opt.three_pair, 10);
+        this.opt.straight = parseInt(this.opt.straight, 10);
+        this.opt.full_house = parseInt(this.opt.full_house, 10);
+        this.opt.full_farkle = parseInt(this.opt.full_farkle, 10);
+        this.opt.triple_farkle = parseInt(this.opt.triple_farkle, 10);
+        this.opt.goal_score = parseInt(this.opt.goal_score, 10);
 
         // mixed
         if ('string' === typeof this.opt.multiples) {
@@ -620,19 +633,36 @@ create a number formatter function to format numbers in error messages and score
 
       Farkle.prototype.setSettings = function(options) {
 // input settings from settings form and merge with this.opt
+// and change the URL to match so that it can be easily bookmarked
 
         return this.cleanOptions( );
       };
 
 
-      Farkle.prototype.countValues = function( ) {
+      Farkle.prototype.countValues = function(held) {
         var i, len,
-          heldOnly = !! arguments[0],
           val_count = [0, 0, 0, 0, 0, 0, 0]; // 7 entries, 1-6 and zero
 
         for (i = 0, len = this.dice.length; i < len; i += 1) {
-          if ( ! heldOnly || (heldOnly && this.dice[i].held && ! this.dice[i].lock)) {
-            val_count[this.dice[i].val] += 1;
+          switch (held) {
+            case true :
+              if (this.dice[i].held && !this.dice[i].lock) {
+                val_count[this.dice[i].val] += 1;
+              }
+
+              break;
+
+            case false :
+              if ( ! this.dice[i].held && ! this.dice[i].lock) {
+                val_count[this.dice[i].val] += 1;
+              }
+
+              break;
+
+            default :
+              val_count[this.dice[i].val] += 1;
+
+              break;
           }
         }
 
@@ -641,32 +671,44 @@ create a number formatter function to format numbers in error messages and score
 
 
       Farkle.prototype.calcScore = function( ) {
-        var i, j, len, triple,
-          val_count = this.countValues( ),
+        var i, j, len, len_j, triple,
+          val_count = 0,
           temp_score = 0,
           temp_count = 0,
           score = 0,
+          held = 0,
           test_farkle = !! arguments[0];
 
         if (test_farkle) {
+          val_count = this.countValues(false);
+
+          this.score.farkle = false;
+
           for (i = 0, len = this.dice.length; i < len; i += 1) {
-            if ((1 === this.dice[i].val) || (5 === this.dice[i].val)) {
-              return false;
+            if (this.dice[i].held) {
+              held += 1;
             }
 
-            if ((-1 !== val_count.indexOf(3))
-              || (-1 !== val_count.indexOf(4))
-              || (-1 !== val_count.indexOf(5))
-              || (-1 !== val_count.indexOf(6))
-            ) {
+            // testing for unheld 1s or 5s
+            if ( ! this.dice[i].held && ((1 === this.dice[i].val) || (5 === this.dice[i].val))) {
               return false;
             }
           }
 
+          // testing for multiples
+          if ((-1 !== val_count.indexOf(3))
+            || (-1 !== val_count.indexOf(4))
+            || (-1 !== val_count.indexOf(5))
+            || (-1 !== val_count.indexOf(6))
+          ) {
+            return false;
+          }
+
           this.score.farkle = true;
 
+          // testing for three pair
           three_pair: {
-            if (this.opt.three_pair) {
+            if (this.opt.three_pair && ! held) {
               for (i = 0, len = val_count.length; i < len; i += 1) {
                 if ((0 !== val_count[i]) && (2 !== val_count[i])) {
                   // don't change farkle status
@@ -678,8 +720,9 @@ create a number formatter function to format numbers in error messages and score
             }
           }
 
+          // testing for straights
           straight: {
-            if (this.opt.straight) {
+            if (this.opt.straight && ! held) {
               for (i = 1, len = val_count.length; i < len; i += 1) {
                 if (1 !== val_count[i]) {
                   // don't change farkle status
@@ -691,21 +734,42 @@ create a number formatter function to format numbers in error messages and score
             }
           }
 
+          // all other scoring values are combinations or additions to the above tests
+          // and do not need to be tested by themselves
+
           return this.score.farkle;
         }
         else {
+          // set the err property on all held dice
+          // non error dice will have it removed later
+          for (i = 0, len = this.dice.length; i < len; i += 1) {
+            if (this.dice[i].held && ! this.dice[i].lock) {
+              this.dice[i].err = true;
+            }
+          }
+
           triple = false;
           val_count = this.countValues(true);
-// TODO: set the err property on held dice not in a scoring group
-// by setting it on all dice, and then as the scoring algorithm processes the dice
-// remove the err property and any remaining will be actual error dice
+
           // individual dice 1 & 5
           if (val_count[1] < 3) {
             score += this.opt.score['1'] * val_count[1];
+
+            for (j = 0, len_j = this.dice.length; j < len_j; j += 1) {
+              if (this.dice[j].err && (1 === this.dice[j].val)) {
+                this.dice[j].err = false;
+              }
+            }
           }
 
           if (val_count[5] < 3) {
             score += this.opt.score['5'] * val_count[5];
+
+            for (j = 0, len_j = this.dice.length; j < len_j; j += 1) {
+              if (this.dice[j].err && (5 === this.dice[j].val)) {
+                this.dice[j].err = false;
+              }
+            }
           }
 
           // triples
@@ -714,6 +778,12 @@ create a number formatter function to format numbers in error messages and score
               if (3 === val_count[i]) {
                 score += this.opt.score[new Array(4).join('' + i)];
                 triple = true;
+
+                for (j = 0, len_j = this.dice.length; j < len_j; j += 1) {
+                  if (this.dice[j].err && (i === this.dice[j].val)) {
+                    this.dice[j].err = false;
+                  }
+                }
               }
             }
           }
@@ -724,6 +794,12 @@ create a number formatter function to format numbers in error messages and score
               if (3 < val_count[i]) {
                 temp_score = this.opt.score[new Array(4).join('' + i)];
                 temp_count = val_count[i] - 3;
+
+                for (j = 0, len_j = this.dice.length; j < len_j; j += 1) {
+                  if (this.dice[j].err && (i === this.dice[j].val)) {
+                    this.dice[j].err = false;
+                  }
+                }
               }
             }
 
@@ -757,9 +833,14 @@ create a number formatter function to format numbers in error messages and score
 
           // three pair
           if (this.opt.three_pair && (6 === this.held) && ! triple) {
-            // three dice values should have a count of 2, so clean, then min, but dont clean on max
+            // three dice values should have a count of 2, so clean, then min, but don't clean on max
             if ((2 === Math.min.apply(null, val_count.slice(1).clean( ))) && (2 === Math.max.apply(null, val_count.slice(1)))) {
               score += this.opt.three_pair;
+
+              // all the dice are part of a scoring group
+              for (j = 0, len_j = this.dice.length; j < len_j; j += 1) {
+                this.dice[j].err = false;
+              }
             }
           }
 
@@ -768,6 +849,11 @@ create a number formatter function to format numbers in error messages and score
             // every die value should have a count of 1, so don't clean on either, but check both min and max
             if ((1 === Math.min.apply(null, val_count.slice(1))) && (1 === Math.max.apply(null, val_count.slice(1)))) {
               score += this.opt.straight;
+
+              // all the dice are part of a scoring group
+              for (j = 0, len_j = this.dice.length; j < len_j; j += 1) {
+                this.dice[j].err = false;
+              }
             }
           }
 
@@ -776,6 +862,12 @@ create a number formatter function to format numbers in error messages and score
             for (i = 1, len = val_count.length; i < len; i += 1) {
               if (2 === val_count[i]) {
                 score += this.opt.full_house;
+
+                for (j = 0, len_j = this.dice.length; j < len_j; j += 1) {
+                  if (this.dice[j].err && (i === this.dice[j].val)) {
+                    this.dice[j].err = false;
+                  }
+                }
               }
             }
           }
@@ -844,9 +936,9 @@ create a number formatter function to format numbers in error messages and score
 
 
       Farkle.prototype.bank = function( ) {
-        var i, len;
+        var i, len,
+          round_score = this.score.round + this.score.roll;
 
-        this.score.round += this.score.roll;
         this.msg = 'Something went wrong (Err: bank)';
 
         if ( ! this.held) {
@@ -862,27 +954,36 @@ create a number formatter function to format numbers in error messages and score
           }
         }
 
-        if (this.score.round < this.opt.bank_points) {
-          this.msg = 'You need at least '+ this.score.bank_points +' points to bank each round';
+        if (this.score.farkle) {
+          this.msg = 'You cannot bank. You have farkled.';
           return false;
         }
 
-        if ( ! this.score.banked && (this.score.round < this.score.start_score)) {
-          this.msg = 'You need at least '+ this.score.start_score +' points to start banking points';
+        if (round_score < this.opt.bank_points) {
+          this.msg = 'You need at least '+ this.score.bank_points.toLocaleString( ) +' points to bank each round. You have '+ round_score.toLocaleString( ) +'.';
           return false;
         }
 
-        if (this.opt.no_50 && (0 !== (this.score.round % 100))) {
-          this.msg = 'You can only bank scores that are multiples of 100';
+        if ( ! this.score.banked && (round_score < this.score.start_score)) {
+          this.msg = 'You need at least '+ this.score.start_score.toLocaleString( ) +' points to start banking points. You have '+ round_score.toLocaleString( ) +'.';
           return false;
         }
 
-        if (this.opt.end_exact && (this.opt.goal_score < (this.score.round + this.score.bank))) {
-          this.msg = 'You must end on '+ this.opt.goal_score +' points exactly. You have '+ (this.score.round + this.score.bank) +'.';
+        if (this.opt.no_50 && (0 !== (round_score % 100))) {
+          this.msg = 'You can only bank scores that are multiples of 100. You have '+ round_score.toLocaleString( ) +'.';
           return false;
         }
 
+        if (this.opt.end_exact && (this.opt.goal_score < (round_score + this.score.bank))) {
+          this.msg = 'You must end on '+ this.opt.goal_score.toLocaleString( ) +' points exactly. You have '+ (round_score + this.score.bank).toLocaleString( ) +'.';
+          return false;
+        }
+
+        this.score.round += this.score.roll;
         this.score.banked += this.score.round;
+
+        this.score.round = 0;
+        this.score.roll = 0;
         this.score.farkle = false;
 
         this.held = true;
@@ -891,7 +992,6 @@ create a number formatter function to format numbers in error messages and score
           {val: 0}, {val: 0}, {val: 0}
         ];
 
-        this.calcScore( );
         this.store( );
 
         return true;
@@ -899,15 +999,15 @@ create a number formatter function to format numbers in error messages and score
 
 
       Farkle.prototype.testFarkle = function( ) {
-        // make sure at least one die is a scoring die (or group)
-        var farkle = this.calcScore(false);
+        // make sure at least one die can be a scoring die (or group)
+        var i, len,
+          farkle = this.calcScore(true);
 
         if (farkle) {
 // TODO: check to see if this is a first roll farkle, and increment the counter
 // and if the number of farkles (3) is hit, add to the banked score
           this.msg = 'You have farkled =(';
-          this.score.round = 0;
-          this.score.roll = 0;
+          this.score.farkle = true;
           this.held = true;
         }
 
@@ -1015,42 +1115,49 @@ return true;
         var $tot = $('#totals'),
           score = Farkle.score;
 
-        $tot.find('.bank').text(score.banked);
-        $tot.find('.round').removeClass('farkle').text(score.round);
-        $tot.find('.roll').removeClass('farkle').text(score.roll);
-        $tot.find('.grand').text(score.banked + score.round + score.roll);
+        $tot.find('.bank').text(score.banked.toLocaleString( ));
+        $tot.find('.round').removeClass('farkle').text(score.round.toLocaleString( ));
+        $tot.find('.roll').removeClass('farkle').text(score.roll.toLocaleString( ));
+        $tot.find('.grand').text((score.farkle ? score.banked : (score.banked + score.round + score.roll)).toLocaleString( ));
+
+        $('#roll').removeClass('disabled');
+        $('#bank').removeClass('disabled');
 
         if (score.farkle) {
-          $tot.find('.round').addClass('farkle').text('Farkle');
-          $tot.find('.roll').addClass('farkle').text('Farkle');
+          $tot.find('.round').addClass('farkle');
+          $tot.find('.roll').addClass('farkle');
+          $('#roll').addClass('disabled');
+          $('#bank').addClass('disabled');
         }
       }
 
-      $('#roll')
-        .on('click', function (evt) {
+      $('#farkle')
+        .on('click', '#roll:not(.disabled)', function (evt) {
           if (false === Farkle.rollDice( )) {
             alert(Farkle.msg);
           }
 
           updateDice( );
           updateScores( );
-        });
-
-      $('#dice')
-        .on('click', '.die', function (evt) {
-          var $tgt = $(evt.currentTarget);
-
-          if (false === Farkle.toggleHold($tgt.data('idx'))) {
+        })
+        .on('click', '#bank:not(.disabled)', function (evt) {
+          if (false === Farkle.bank( )) {
             alert(Farkle.msg);
           }
 
           updateDice( );
           updateScores( );
-        });
+        })
+        .on('click', '#reset', function (evt) {
+          Farkle.reset( );
 
-      $('#bank')
-        .on('click', function (evt) {
-          if (false === Farkle.bank( )) {
+          updateDice( );
+          updateScores( );
+        })
+        .on('click', '.die:not(.lock)', function (evt) {
+          var $tgt = $(evt.currentTarget);
+
+          if (false === Farkle.toggleHold($tgt.data('idx'))) {
             alert(Farkle.msg);
           }
 
