@@ -1,15 +1,15 @@
+<!doctype html>
 <!--
 
-TODO ----
+TODO - - - -
 
 figure out best way to test for, and handle farkles, counting them for the triple farkle points, etc
 
 -->
-<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=0.5, minimum-scale=0.1, maximum-scale=10.0, user-scalable=1"/>
 
     <title>Farkle</title>
@@ -494,7 +494,8 @@ figure out best way to test for, and handle farkles, counting them for the tripl
           if (a.lock && ! b.lock) {
             return -1;
           }
-          else if (b.lock && ! a.lock) {
+
+          if (b.lock && ! a.lock) {
             return 1;
           }
 
@@ -504,6 +505,10 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
 
       Farkle.prototype.grab = function( ) {
+        if ( ! this.useCookie) {
+          return false;
+        }
+
 // TODO: try and read the cookie and reset game to that state
       };
 
@@ -600,8 +605,8 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
 
       Farkle.prototype.readUrlOptions = function( ) {
-        var URL = new Url( ),
-          query = $.extend({}, URL.query);
+        var URL = new Url( );
+        var query = $.extend({}, URL.query);
 
         // clear out the functions
         delete query.clear;
@@ -612,8 +617,8 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
 
       Farkle.prototype.setOptions = function( ) {
-        var idx,
-          options = this.readUrlOptions( );
+        var idx;
+        var options = this.readUrlOptions( );
 
         this.opt = this.defaults;
 
@@ -646,8 +651,9 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
 
       Farkle.prototype.countValues = function(held) {
-        var i, len,
-          val_count = [0, 0, 0, 0, 0, 0, 0]; // 7 entries, 1-6 and zero
+        var i;
+        var len;
+        var val_count = [0, 0, 0, 0, 0, 0, 0]; // 7 entries, 1-6 and zero
 
         for (i = 0, len = this.dice.length; i < len; i += 1) {
           switch (held) {
@@ -677,13 +683,17 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
 
       Farkle.prototype.calcScore = function( ) {
-        var i, j, len, len_j, triple,
-          val_count = 0,
-          temp_score = 0,
-          temp_count = 0,
-          score = 0,
-          held = 0,
-          test_farkle = !! arguments[0];
+        var i;
+        var j;
+        var len;
+        var len_j;
+        var triple;
+        var val_count = 0;
+        var temp_score = 0;
+        var temp_count = 0;
+        var score = 0;
+        var held = 0;
+        var test_farkle = !! arguments[0];
 
         if (test_farkle) {
           val_count = this.countValues(false);
@@ -903,8 +913,6 @@ figure out best way to test for, and handle farkles, counting them for the tripl
       Farkle.prototype.unhold = function(idx) {
         idx = parseInt(idx, 10);
 
-        var i, len;
-
         this.msg = 'Something went wrong (Err: unhold)';
 
         if (this.dice[idx].lock) {
@@ -942,8 +950,9 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
 
       Farkle.prototype.bank = function( ) {
-        var i, len,
-          round_score = this.score.round + this.score.roll;
+        var i;
+        var len;
+        var round_score = this.score.round + this.score.roll;
 
         this.msg = 'Something went wrong (Err: bank)';
 
@@ -1006,8 +1015,7 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
       Farkle.prototype.testFarkle = function( ) {
         // make sure at least one die can be a scoring die (or group)
-        var i, len,
-          farkle = this.calcScore(true);
+        var farkle = this.calcScore(true);
 
         if (farkle) {
 // TODO: check to see if this is a first roll farkle, and increment the counter
@@ -1027,8 +1035,9 @@ figure out best way to test for, and handle farkles, counting them for the tripl
 
 
       Farkle.prototype.rollDice = function( ) {
-        var i, len,
-          held = 0;
+        var i;
+        var len;
+        var held = 0;
 /*
 this.dice = [
   {val:2, held:true},
@@ -1088,88 +1097,93 @@ return true;
 
     <!-- DOM manipulation and events -->
     <script type="text/javascript">
+      "use strict";
+
       Farkle = new Farkle( );
 
-      function updateDice( ) {
-        var idx, die,
-          html = '',
-          dice = Farkle.dice,
-          num = ['zero',
+      (function ($, Farkle) {
+        function updateDice( ) {
+          var idx;
+          var die;
+          var html = '';
+          var dice = Farkle.dice;
+          var num = ['zero',
             'one', 'two', 'three',
             'four', 'five', 'six'
           ];
 
-        idx = 0;
-        for (die in dice) {
-          if (dice.hasOwnProperty(die)) {
-            html += '<li class="die ' + num[dice[die].val]
-              + (dice[die].held ? ' held' : '')
-              + (dice[die].lock ? ' lock' : '')
-              + (dice[die].err ? ' err' : '')
-              + '" title="' + dice[die].val
-              + '" data-val="' + dice[die].val
-              + '" data-idx="' + idx + '"></li>';
+          idx = 0;
+          for (die in dice) {
+            if (dice.hasOwnProperty(die)) {
+              html += '<li class="die ' + num[dice[die].val]
+                + (dice[die].held ? ' held' : '')
+                + (dice[die].lock ? ' lock' : '')
+                + (dice[die].err ? ' err' : '')
+                + '" title="' + dice[die].val
+                + '" data-val="' + dice[die].val
+                + '" data-idx="' + idx + '"></li>';
+            }
+
+            idx += 1;
           }
 
-          idx += 1;
+          $('#dice').empty( ).append(html);
         }
 
-        $('#dice').empty( ).append(html);
-      }
+        function updateScores( ) {
+          var $tot = $('#totals');
+          var score = Farkle.score;
 
-      function updateScores( ) {
-        var $tot = $('#totals'),
-          score = Farkle.score;
+          $tot.find('.bank').text(score.banked.toLocaleString( ));
+          $tot.find('.round').removeClass('farkle').text(score.round.toLocaleString( ));
+          $tot.find('.roll').removeClass('farkle').text(score.roll.toLocaleString( ));
+          $tot.find('.grand').text((score.farkle ? score.banked : (score.banked + score.round + score.roll)).toLocaleString( ));
 
-        $tot.find('.bank').text(score.banked.toLocaleString( ));
-        $tot.find('.round').removeClass('farkle').text(score.round.toLocaleString( ));
-        $tot.find('.roll').removeClass('farkle').text(score.roll.toLocaleString( ));
-        $tot.find('.grand').text((score.farkle ? score.banked : (score.banked + score.round + score.roll)).toLocaleString( ));
+          $('#roll').removeClass('disabled');
+          $('#bank').removeClass('disabled');
 
-        $('#roll').removeClass('disabled');
-        $('#bank').removeClass('disabled');
-
-        if (score.farkle) {
-          $tot.find('.round').addClass('farkle');
-          $tot.find('.roll').addClass('farkle');
-          $('#roll').addClass('disabled');
-          $('#bank').addClass('disabled');
+          if (score.farkle) {
+            $tot.find('.round').addClass('farkle');
+            $tot.find('.roll').addClass('farkle');
+            $('#roll').addClass('disabled');
+            $('#bank').addClass('disabled');
+          }
         }
-      }
 
-      $('#farkle')
-        .on('click', '#roll:not(.disabled)', function (evt) {
-          if (false === Farkle.rollDice( )) {
-            alert(Farkle.msg);
-          }
+        $('#farkle')
+          .on('click', '#roll:not(.disabled)', function (evt) {
+            if (false === Farkle.rollDice( )) {
+              alert(Farkle.msg);
+            }
 
-          updateDice( );
-          updateScores( );
-        })
-        .on('click', '#bank:not(.disabled)', function (evt) {
-          if (false === Farkle.bank( )) {
-            alert(Farkle.msg);
-          }
+            updateDice( );
+            updateScores( );
+          })
+          .on('click', '#bank:not(.disabled)', function (evt) {
+            if (false === Farkle.bank( )) {
+              alert(Farkle.msg);
+            }
 
-          updateDice( );
-          updateScores( );
-        })
-        .on('click', '#reset', function (evt) {
-          Farkle.reset( );
+            updateDice( );
+            updateScores( );
+          })
+          .on('click', '#reset', function (evt) {
+            Farkle.reset( );
 
-          updateDice( );
-          updateScores( );
-        })
-        .on('click', '.die:not(.lock)', function (evt) {
-          var $tgt = $(evt.currentTarget);
+            updateDice( );
+            updateScores( );
+          })
+          .on('click', '.die:not(.lock)', function (evt) {
+            var $tgt = $(evt.currentTarget);
 
-          if (false === Farkle.toggleHold($tgt.data('idx'))) {
-            alert(Farkle.msg);
-          }
+            if (false === Farkle.toggleHold($tgt.data('idx'))) {
+              alert(Farkle.msg);
+            }
 
-          updateDice( );
-          updateScores( );
-        });
+            updateDice( );
+            updateScores( );
+          });
+      })(jQuery, Farkle);
     </script>
   </body>
 </html>
