@@ -1384,8 +1384,10 @@ display: none;
           for (i = 0; i < 4; i += 1) {
             $row = $('#r' + (i + 1));
 
+            $row.find('ul').empty( );
+
             for (j = 0; j < 11; j += 1) {
-              $row.find('li:eq(' + j + ')').text(values[i][j]);
+              $row.find('ul').append($('<li>').addClass('color_' + colors[i][j]).text(values[i][j]));
             }
           }
         }
