@@ -48,10 +48,6 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         padding: 0;
       }
 
-      #settings {
-        display: none;
-      }
-
       #farkle {
         display: inline-block;
       }
@@ -214,84 +210,8 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         display: inline-block;
       }
 
-      #settings input[type=checkbox] {
-        visibility: hidden;
-      }
-
-      /* SLIDER - [ http://cssdeck.com/labs/css-checkbox-styles ] */
-      .slide {
-        width: 80px;
-        height: 26px;
-        background: #333;
-        display: inline-block;
-        vertical-align: middle;
-
-        border-radius: 50px;
-        position: relative;
-
-        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
-        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
-      }
-
-      .slide:after {
-        content: 'OFF';
-        font: 12px/26px sans-serif;
-        color: #000;
-        position: absolute;
-        right: 10px;
-        z-index: 0;
-        font-weight: bold;
-        text-shadow: 1px 1px 0 rgba(255, 255, 255, .15);
-      }
-
-      .slide:before {
-        content: 'ON';
-        font: 12px/26px sans-serif;
-        color: #00bf00;
-        position: absolute;
-        left: 10px;
-        z-index: 0;
-        font-weight: bold;
-      }
-
-      .slide label {
-        display: block;
-        width: 34px;
-        height: 20px;
-
-        border-radius: 50px;
-
-        -webkit-transition: all .3s ease;
-        -moz-transition: all .3s ease;
-        -o-transition: all .3s ease;
-        -ms-transition: all .3s ease;
-        transition: all .3s ease;
-        cursor: pointer;
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        z-index: 1;
-
-        -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-        -moz-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-        background: #fcfff4;
-
-        background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fcfff4', endColorstr='#b3bead', GradientType=0);
-      }
-
-      .slide input[type=checkbox]:checked + label {
-        left: 43px;
-      }
-      /* END SLIDER */
-
-      button {
+      button,
+      .button {
         display: inline-block;
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -315,12 +235,15 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         float: left;
       }
 
-      button:hover {
+      button:hover,
+      .button:hover {
         background-color: #007095;
       }
 
       button.disabled,
-      button.disabled:hover {
+      button.disabled:hover,
+      .button.disabled,
+      .button.disabled:hover {
         background-color: #666;
         border-color: #666;
         cursor: default;
@@ -332,21 +255,6 @@ figure out best way to test for, and handle farkles, counting them for the tripl
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <section id="settings">
-      Settings go here
-      <div id="strict_wrap" title="Only allow legal actions">Strict Mode
-        <div class="slide">
-          <input type="checkbox" value="1" id="strict" name="strict"/>
-          <label for="strict"></label>
-        </div>
-      </div>
-      <div id="strictrolls_wrap" title="Forces use of dice">Strict Rolls
-        <div class="slide">
-          <input type="checkbox" value="1" id="strictrolls" name="strictrolls"/>
-          <label for="strictrolls"></label>
-        </div>
-      </div>
-    </section>
     <section id="farkle" class="cl">
       <button id="roll">Roll</button>
       <ul id="dice" class="cl">
@@ -372,6 +280,50 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         <div class="grand total" title="Grand Total">00,000</div>
       </div>
     </section>
+    <section id="rules">
+      <h2>Farkle Rules</h2>
+      <h3>Coming Soon</h3>
+    </section>
+    <section id="settings">
+      <h3>Settings</h3>
+      <form method="get" action="" id="settings_form" class="cl">
+        <fieldset>
+          <legend>Scoring</legend>
+          <div><label>Triple 1s <input type="text" name="t1" id="t1" value="1000" /><small>Usually 100, 300, or 1000</small></label></div>
+          <div><label>Three Pair <input type="text" name="tp" id="tp" value="750" /><small>Usually 0, 500, 600, 750, 1000, or 1500</small></label></div>
+          <div><label>Straight (1-6) <input type="text" name="st" id="st" value="1500" /><small>Usually 0, 1000, 1200, 1500, or 2500</small></label></div>
+          <div><label>Full House <input type="text" name="fh" id="fh" value="250" /><small>Usually 0 or 250</small></label></div>
+          <div>
+            <label>Multiples Method <select name="mult" id="mult">
+              <option value="false">Not Allowed</option>
+              <option value="adding" selected="selected">Adding</option>
+              <option value="doubling">Doubling</option>
+              <option value="other">Other:</option>
+            </select></label>
+            <div id="mult_other">
+              <div><label>4 of a kind <input type="text" name="m4" id="m4" value="" /><small>Usually 1000 or 2000</small></label></div>
+              <div><label>5 of a kind <input type="text" name="m5" id="m5" value="" /><small>Usually 2000 or 4000</small></label></div>
+              <div><label>6 of a kind <input type="text" name="m6" id="m6" value="" /><small>Usually 3000, 6000, or 10000</small></label></div>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Farkles</legend>
+          <div><label>First throw farkle <input type="text" name="ftf" id="ftf" value="0" /><small>Usually 0 or 500</small></label></div>
+          <div><label>Triple farkle <input type="text" name="tf" id="tf" value="1000" /><small>Usually 0 or 1000</small></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>Banking</legend>
+          <div><label>No 50s <input type="checkbox" name="n50" id="n50" value="1" /></label></div>
+          <div><label>Join Score <input type="text" name="js" id="js" value="0" /><small>Usually 0, 500, or 1000</small></label></div>
+          <div><label>Bank Score <input type="text" name="bs" id="bs" value="0" /><small>Usually 0, 300, 500, or 1000</small></label></div>
+          <div><label>Goal Score <input type="text" name="gs" id="gs" value="0" /><small>Usually 1000, 5000, 10000, or 25000</small></label></div>
+          <div><label>End Exact <input type="checkbox" name="ee" id="ee" value="1" /></label></div>
+        </fieldset>
+        <input type="submit" value="Submit" class="button" />
+      </form>
+    </section>
+
 
     <!-- jQuery -->
     <script type="text/javascript">
@@ -452,7 +404,7 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         };
 
         // the current game options
-        this.opt = this.defaults;
+        this.opt = $.extend({}, this.defaults); // clone
 
         // the dice
         // {
@@ -620,31 +572,77 @@ figure out best way to test for, and handle farkles, counting them for the tripl
         var idx;
         var options = this.readUrlOptions( );
 
-        this.opt = this.defaults;
+        this.opt = $.extend({}, this.defaults); // clone
 
         for (idx in options) {
           if (options.hasOwnProperty(idx)) {
             switch (idx) {
-              case '111' :
-                this.opt.score[111] = parseInt(options[111], 10);
+            // scoring
+              case 't1' :
+                this.opt.score[111] = parseInt(options[idx], 10);
                 break;
 
-// TODO: add the rest
+              case 'tp' :
+                this.opt.three_pair = parseInt(options[idx], 10);
+                break;
 
-              default:
+              case 'st' :
+                this.opt.straight = parseInt(options[idx], 10);
+                break;
+
+              case 'fh' :
+                this.opt.full_house = parseInt(options[idx], 10);
+                break;
+
+              case 'mult' :
+                if ('other' === options[idx]) {
+                  this.opt.multiples = {
+                    '4': parseInt(0 + options['m4'], 10),
+                    '5': parseInt(0 + options['m5'], 10),
+                    '6': parseInt(0 + options['m6'], 10)
+                  };
+                }
+                else {
+                  this.opt.multiples = options[idx];
+                }
+                break;
+
+            // farkles
+              case 'ftf' :
+                this.opt.full_farkle = parseInt(options[idx], 10);
+                break;
+
+              case 'tf' :
+                this.opt.triple_farkle = parseInt(options[idx], 10);
+                break;
+
+            // banking
+              case 'n50' :
+                this.opt.no_50 = !! options[idx];
+                break;
+
+              case 'js' :
+                this.opt.start_score = parseInt(options[idx], 10);
+                break;
+
+              case 'bs' :
+                this.opt.bank_score = parseInt(options[idx], 10);
+                break;
+
+              case 'gs' :
+                this.opt.goal_score = parseInt(options[idx], 10);
+                break;
+
+              case 'ee' :
+                this.opt.end_exact = !! options[idx];
+                break;
+
+              default :
                 // do nothing
                 break;
             }
           }
         }
-
-        return this.cleanOptions( );
-      };
-
-
-      Farkle.prototype.setSettings = function(options) {
-// input settings from settings form and merge with this.opt
-// and change the URL to match so that it can be easily bookmarked
 
         return this.cleanOptions( );
       };
@@ -1102,6 +1100,43 @@ return true;
       Farkle = new Farkle( );
 
       (function ($, Farkle) {
+        function updateSettings( ) {
+          var opt = Farkle.opt;
+
+          // scoring
+          $('#t1').val(opt.score['111']);
+          $('#tp').val(opt.three_pair);
+          $('#st').val(opt.straight);
+          $('#fh').val(opt.full_house);
+
+          if ('string' === typeof opt.multiples) {
+            $('#mult').val(opt.multiples);
+            $('#mult_other').hide( );
+          }
+          else if (false === opt.multiples) {
+            $('#mult').val('false');
+            $('#mult_other').hide();
+          }
+          else {
+            $('#mult').val('other');
+            $('#m4').val(opt.multiples['4']);
+            $('#m5').val(opt.multiples['5']);
+            $('#m6').val(opt.multiples['6']);
+            $('#mult_other').show( );
+          }
+
+          // farkles
+          $('#ftf').val(opt.full_farkle);
+          $('#tf').val(opt.triple_farkle);
+
+          // banking
+          $('#n50').prop('checked', opt.no_50);
+          $('#js').val(opt.start_score);
+          $('#bs').val(opt.bank_score);
+          $('#gs').val(opt.goal_score);
+          $('#ee').prop('checked', opt.end_exact);
+        }
+
         function updateDice( ) {
           var idx;
           var die;
@@ -1150,6 +1185,15 @@ return true;
           }
         }
 
+        $('#mult').on('change', function(evt) {
+          if ('other' === $(this).val( )) {
+            $('#mult_other').show( );
+          }
+          else {
+            $('#mult_other').hide( );
+          }
+        });
+
         $('#farkle')
           .on('click', '#roll:not(.disabled)', function (evt) {
             if (false === Farkle.rollDice( )) {
@@ -1183,6 +1227,8 @@ return true;
             updateDice( );
             updateScores( );
           });
+
+        updateSettings( );
       })(jQuery, Farkle);
     </script>
   </body>
