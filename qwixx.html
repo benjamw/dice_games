@@ -858,7 +858,7 @@ display: none;
         this.masterDice = ['r', 'y', 'g', 'b', 'w1', 'w2']; // colors first so they get blocked via row index
 
         // the current set of dice (with blocked dice removed)
-        this.dice = this.masterDice;
+        this.dice = this.masterDice.slice(0); // clone
 
         // the blocked rows
         this.blocked = [];
@@ -948,7 +948,7 @@ display: none;
 
 
       Qwixx.prototype.reset = function( ) {
-        this.dice = this.masterDice;
+        this.dice = this.masterDice.slice(0);
         this.blocked = [];
         this.locked = [];
         this.roll = {};
