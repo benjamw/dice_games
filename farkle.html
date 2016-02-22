@@ -280,7 +280,8 @@ add rules
         <li class="die zero"></li>
       </ul>
       <button id="bank">Bank</button>
-      <button id="reset">Reset</button>
+      <button id="reset_roll">Reset Roll</button>
+      <button id="reset">Reset All</button>
     </section>
     <section id="totals" class="cl">
       <div class="head">Total</div>
@@ -500,6 +501,24 @@ add rules
           roll: 0,
           farkle: false
         };
+
+        this.held = true;
+
+        // do not grab cookie values
+        this.setOptions( );
+        this.store( );
+      };
+
+
+      Farkle.prototype.resetRoll = function( ) {
+        this.dice = [
+          {val: 0}, {val: 0}, {val: 0},
+          {val: 0}, {val: 0}, {val: 0}
+        ];
+
+        this.score.round = 0;
+        this.score.roll = 0;
+        this.score.farkle = false;
 
         this.held = true;
 
@@ -1030,7 +1049,7 @@ add rules
         var farkle = this.calcScore(true);
 
         if (farkle) {
-          if (this.opt.full_farkle && (0 < (this.score.round + this.score.roll))) {
+          if (this.opt.full_farkle && (0 === (this.score.round + this.score.roll))) {
             this.score.banked += this.opt.full_farkle;
           }
 
@@ -1058,17 +1077,6 @@ add rules
         var i;
         var len;
         var held = 0;
-/*
-this.dice = [
-  {val:2, held:true},
-  {val:2, held:true},
-  {val:3, held:true},
-  {val:3, held:true},
-  {val:4, held:true},
-  {val:4, held:false}
-];
-return true;
-*/
 
         this.msg = 'Something went wrong (Err: rollDice)';
 
@@ -1217,7 +1225,7 @@ return true;
         });
 
         $('#farkle')
-          .on('click', '#roll:not(.disabled)', function (evt) {
+          .on('click', '#roll:not(.disabled)', function(evt) {
             if (false === Farkle.rollDice( )) {
               alert(Farkle.msg);
             }
@@ -1225,7 +1233,17 @@ return true;
             updateDice( );
             updateScores( );
           })
-          .on('click', '#bank:not(.disabled)', function (evt) {
+          .on('click', '.die:not(.lock)', function(evt) {
+            var $tgt = $(evt.currentTarget);
+
+            if (false === Farkle.toggleHold($tgt.data('idx'))) {
+              alert(Farkle.msg);
+            }
+
+            updateDice( );
+            updateScores( );
+          })
+          .on('click', '#bank:not(.disabled)', function(evt) {
             if (false === Farkle.bank( )) {
               alert(Farkle.msg);
             }
@@ -1233,18 +1251,14 @@ return true;
             updateDice( );
             updateScores( );
           })
-          .on('click', '#reset', function (evt) {
-            Farkle.reset( );
+          .on('click', '#reset_roll', function(evt) {
+            Farkle.resetRoll( );
 
             updateDice( );
             updateScores( );
           })
-          .on('click', '.die:not(.lock)', function (evt) {
-            var $tgt = $(evt.currentTarget);
-
-            if (false === Farkle.toggleHold($tgt.data('idx'))) {
-              alert(Farkle.msg);
-            }
+          .on('click', '#reset', function(evt) {
+            Farkle.reset( );
 
             updateDice( );
             updateScores( );
