@@ -3,9 +3,7 @@
 
 TODO - - - -
 
-figure out best way to test for, and handle farkles, counting them for the triple farkle points, etc
-
-add rules
+join score does nothing
 
 when multiples are turned off, and 4 or more 1s or 5s are rolled,
 they should still count as a triple 1 or 5 and then individual 1s or 5s beyond that
@@ -13,6 +11,13 @@ as it is right now, it counts the whole group as one group and disallows it
 it also marks the first 3 as error once the 4th is clicked, those should still be
 marked as valid and only the additional dice marked as error, this last rule is true
 for all dice, not just 1s and 5s
+
+add option for double triplets - usually 0 or 2500 (1000 more than straight)
+add option for 4 of a kind with a pair - usually 0 or 3000
+
+figure out best way to test for, and handle farkles, counting them for the triple farkle points, etc
+
+add rules
 
 -->
 <html lang="en">
@@ -319,7 +324,7 @@ for all dice, not just 1s and 5s
         <fieldset>
           <legend>Farkles</legend>
           <div><label>First throw farkle <input type="text" name="ftf" id="ftf" value="0" /><small>Usually 0 or 500</small></label></div>
-          <div><label>Triple farkle <input type="text" name="tf" id="tf" value="1000" /><small>Usually 0 or 1000</small></label></div>
+          <div><label>Triple farkle <input type="text" name="tf" id="tf" value="-1000" /><small>Usually 0, -500, or -1000</small></label></div>
         </fieldset>
         <fieldset>
           <legend>Banking</legend>
@@ -407,7 +412,7 @@ for all dice, not just 1s and 5s
             //      '6': 3000 // is usually 3000, 6000, or 10000
             //    }
           full_farkle: 0, // points for farkle on first throw (all 6 non-hot dice), is usually 0 or 500
-          triple_farkle: 1000, // three farkles in a row, is usually 0 or 1000
+          triple_farkle: -1000, // three farkles in a row, is usually 0, -500, or -1000
           goal_score: 10000, // is usually 1000, 5000, 10000, or 25000
           end_exact: false // you must end on final score exactly
         };
@@ -981,13 +986,13 @@ for all dice, not just 1s and 5s
           return false;
         }
 
-        if (round_score < this.opt.bank_points) {
-          this.msg = 'You need at least '+ this.score.bank_points.toLocaleString( ) +' points to bank each round. You have '+ round_score.toLocaleString( ) +'.';
+        if (round_score < this.opt.bank_score) {
+          this.msg = 'You need at least '+ this.opt.bank_score.toLocaleString( ) +' points to bank each round. You have '+ round_score.toLocaleString( ) +'.';
           return false;
         }
 
-        if ( ! this.score.banked && (round_score < this.score.start_score)) {
-          this.msg = 'You need at least '+ this.score.start_score.toLocaleString( ) +' points to start banking points. You have '+ round_score.toLocaleString( ) +'.';
+        if ( ! this.score.banked && (round_score < this.opt.start_score)) {
+          this.msg = 'You need at least '+ this.opt.start_score.toLocaleString( ) +' points to start banking points. You have '+ round_score.toLocaleString( ) +'.';
           return false;
         }
 
@@ -996,8 +1001,8 @@ for all dice, not just 1s and 5s
           return false;
         }
 
-        if (this.opt.end_exact && (this.opt.goal_score < (round_score + this.score.bank))) {
-          this.msg = 'You must end on '+ this.opt.goal_score.toLocaleString( ) +' points exactly. You have '+ (round_score + this.score.bank).toLocaleString( ) +'.';
+        if (this.opt.end_exact && (this.opt.goal_score < (round_score + this.score.banked))) {
+          this.msg = 'You must end on '+ this.opt.goal_score.toLocaleString( ) +' points exactly. You have '+ (round_score + this.score.banked).toLocaleString( ) +'.';
           return false;
         }
 
@@ -1025,11 +1030,19 @@ for all dice, not just 1s and 5s
         var farkle = this.calcScore(true);
 
         if (farkle) {
-// TODO: check to see if this is a first roll farkle, and increment the counter
-// and if the number of farkles (3) is hit, add to the banked score
+          if (this.opt.full_farkle && (0 < (this.score.round + this.score.roll))) {
+            this.score.banked += this.opt.full_farkle;
+          }
+
           this.msg = 'You have farkled =(';
           this.score.farkle = true;
           this.held = true;
+
+          this.farkles += 1;
+          if (3 === this.farkles) {
+            this.farkles = 0;
+            this.score.banked += this.opt.triple_farkle;
+          }
         }
 
         return farkle;
