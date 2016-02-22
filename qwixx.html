@@ -3,7 +3,9 @@
 
 TODO - - - -
 
-after a dice has been blocked in strictrolls mode, only one dice was shown on the roll
+add some kind of "game over" notice in strict mode
+
+allow undo of last mark in strict mode (see if strictRolls is affecting this as well)
 
 show some kind of marker on the last element letting the user know it is unmarkable
 until there are 5 marks previously, then change it to look like all the others
@@ -1031,6 +1033,13 @@ display: none;
       };
 
 
+      Qwixx.prototype.isLocked = function(row) {
+        row = parseInt(row, 10);
+
+        return (-1 !== this.locked.indexOf(row));
+      };
+
+
       Qwixx.prototype.lock = function(row) {
         row = parseInt(row, 10);
 
@@ -1048,19 +1057,6 @@ display: none;
       };
 
 
-      Qwixx.prototype.block = function(row) {
-        row = parseInt(row, 10);
-
-        this.blocked.push(row);
-
-        if (this.strictRolls) {
-          this.dice = this.dice.splice(this.dice.indexOf(row), 1);
-        }
-
-        return true;
-      };
-
-
       Qwixx.prototype.unlock = function(row) {
         row = parseInt(row, 10);
 
@@ -1068,6 +1064,54 @@ display: none;
 
         if (this.strict) {
           this.unblock(row);
+        }
+
+        return true;
+      };
+
+
+      Qwixx.prototype.toggleLock = function(row) {
+        row = parseInt(row, 10);
+
+        if ( ! this.isLocked(row)) {
+          this.lock(row);
+        }
+        else {
+          this.unlock(row);
+        }
+      };
+
+
+      Qwixx.prototype.checkLocked = function (row) {
+        row = parseInt(row, 10);
+
+        if ( ! this.strict) {
+          return false;
+        }
+
+        if (this.values[row][10] === this.rows[row][this.rows[row].length - 1]) {
+          this.lock(row);
+        }
+        else {
+          this.unlock(row);
+        }
+      };
+
+
+      Qwixx.prototype.isBlocked = function(row) {
+        row = parseInt(row, 10);
+
+        return (-1 !== this.blocked.indexOf(row));
+      };
+
+
+      Qwixx.prototype.block = function(row) {
+        row = parseInt(row, 10);
+
+        this.blocked.push(row);
+
+        if (this.strictRolls) {
+          this.dice.splice(row, 1);
         }
 
         return true;
@@ -1108,18 +1152,14 @@ display: none;
       };
 
 
-      Qwixx.prototype.checkLocked = function(row) {
+      Qwixx.prototype.toggleBlock = function(row) {
         row = parseInt(row, 10);
 
-        if ( ! this.strict) {
-          return false;
-        }
-
-        if (this.values[row][10] === this.rows[row][this.rows[row].length - 1]) {
-          this.lock(row);
+        if ( ! this.isBlocked(row)) {
+          this.block(row);
         }
         else {
-          this.unlock(row);
+          this.unblock(row);
         }
       };
 
@@ -1251,6 +1291,19 @@ display: none;
         this.checkLocked(row);
 
         return true;
+      };
+
+
+      Qwixx.prototype.toggleMark = function(row, value) {
+        row = parseInt(row, 10);
+        value = parseInt(value, 10);
+
+        if ( ! this.isMarked(row, value)) {
+          this.mark(row, value);
+        }
+        else {
+          this.unmark(row, value);
+        }
       };
 
 
@@ -1487,16 +1540,11 @@ display: none;
             var row = $tgt.parents('.row').data('row') - 1;
             var value = $tgt.text( );
 
-            if ($tgt.closest('.row').is('.blocked')) {
+            if (Qwixx.isBlocked(row)) {
               return false;
             }
 
-            if (Qwixx.isMarked(row, value)) {
-              Qwixx.unmark(row, value);
-            }
-            else {
-              Qwixx.mark(row, value);
-            }
+            Qwixx.toggleMark(row, value);
 
             updateLocked( );
             updateMarks( );
@@ -1511,16 +1559,7 @@ display: none;
               return;
             }
 
-            if ( ! $tgt.is('.lock')) {
-              $tgt = $tgt.closest('.lock');
-            }
-
-            if ( ! $tgt.hasClass('marked')) {
-              Qwixx.lock(row);
-            }
-            else {
-              Qwixx.unlock(row);
-            }
+            Qwixx.toggleLock(row);
 
             updateLocked( );
             updateMarks( );
@@ -1535,16 +1574,7 @@ display: none;
               return;
             }
 
-            if ( ! $tgt.is('.die')) {
-              $tgt = $tgt.closest('.die');
-            }
-
-            if ( ! $tgt.hasClass('marked')) {
-              Qwixx.block(row);
-            }
-            else {
-              Qwixx.unblock(row);
-            }
+            Qwixx.toggleBlock(row);
 
             updateLocked( );
             updateMarks( );
@@ -1555,6 +1585,7 @@ display: none;
           .on('click', 'ul li', function (evt) {
             var $tgt = $(evt.currentTarget);
 
+            // no way to test this in class, so just assume this is correct
             if ( ! $tgt.is('.marked')) {
               Qwixx.pass( );
             }
