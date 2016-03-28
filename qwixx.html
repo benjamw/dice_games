@@ -673,6 +673,15 @@ display: none;
         background-color: #26517D;
       }
 
+      .button.disabled {
+        background-color: #999;
+        color: #CCC;
+      }
+
+      .button.disabled:hover {
+        background-color: inherit;
+      }
+
       #dice {
         margin: 0.5rem 0 0 1rem;
         float: left;
@@ -1489,6 +1498,18 @@ display: none;
           }
         }
 
+        function updateFinished( ) {
+          var $roll = $('#roll');
+          var done = Qwixx.isDone( );
+
+          if (done) {
+            $roll.addClass('disabled', done);
+            $roll.on('click', function(evt) {
+              alert('The game is over. You must reset the game to play again.');
+            });
+          }
+        }
+
         function updateScores( ) {
           var $tot = $('#totals');
           var score = Qwixx.getScore( );
@@ -1499,6 +1520,8 @@ display: none;
           $tot.find('.blue').text(score[3]);
           $tot.find('.pass').text(score.pass);
           $tot.find('.grand').text(score.total);
+
+          updateFinished( );
         }
 
         function updateDice( ) {
@@ -1525,16 +1548,20 @@ display: none;
           $('#dice').empty( ).append(html);
         }
 
-        $('#roll')
-          .on('click', function (evt) {
-            var rolls = Qwixx.rollDice( );
+        function setRollButton( ) {
+          $('#roll')
+            .removeClass('disabled')
+            .off('click')
+            .on('click', function (evt) {
+              var rolls = Qwixx.rollDice( );
 
-            if ( ! rolls) {
-              alert('You must make a mark before you can roll again');
-            }
+              if (!rolls) {
+                alert('You must make a mark before you can roll again');
+              }
 
-            updateDice( );
-          });
+              updateDice( );
+            });
+        }
 
         $('.row')
           .on('click', 'ul li', function (evt) {
@@ -1628,6 +1655,7 @@ display: none;
             updatePasses( );
             updateScores( );
             updateDice( );
+            setRollButton( );
           });
 
         $('#reset')
@@ -1641,6 +1669,7 @@ display: none;
             updatePasses( );
             updateScores( );
             updateDice( );
+            setRollButton( );
           })
           .trigger('click');
       })(jQuery, Qwixx);
